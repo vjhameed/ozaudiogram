@@ -1,15 +1,15 @@
 var fs = require("fs"),
-    path = require("path"),
-    Canvas = require("canvas"),
-    queue = require("d3").queue;
+  path = require("path"),
+  Canvas = require("canvas"),
+  queue = require("d3").queue;
 
 function drawFrames(renderer, options, cb) {
 
   var frameQueue = queue(10),
-      canvases = [];
+    canvases = [];
 
   for (var i = 0; i < 10; i++) {
-    canvases.push(new Canvas(options.width, options.height));
+    canvases.push(new Canvas.Canvas(options.width, options.height));
   }
 
   for (var i = 0; i < options.numFrames; i++) {
@@ -21,7 +21,7 @@ function drawFrames(renderer, options, cb) {
   function drawFrame(frameNumber, frameCallback) {
 
     var canvas = canvases.pop(),
-        context = canvas.getContext("2d");
+      context = canvas.getContext("2d");
 
     renderer.drawFrame(context, {
       caption: options.caption,
@@ -29,13 +29,13 @@ function drawFrames(renderer, options, cb) {
       frame: frameNumber
     });
 
-    canvas.toBuffer(function(err, buf){
+    canvas.toBuffer(function (err, buf) {
 
       if (err) {
         return cb(err);
       }
 
-      fs.writeFile(path.join(options.frameDir, zeropad(frameNumber + 1, 6) + ".png"), buf, function(writeErr) {
+      fs.writeFile(path.join(options.frameDir, zeropad(frameNumber + 1, 6) + ".png"), buf, function (writeErr) {
 
         if (writeErr) {
           return frameCallback(writeErr);
