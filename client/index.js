@@ -1,17 +1,24 @@
 var d3 = require("d3"),
-    $ = require("jquery"),
-    preview = require("./preview.js"),
-    video = require("./video.js"),
-    audio = require("./audio.js");
+  $ = require("jquery"),
+  preview = require("./preview.js"),
+  video = require("./video.js"),
+  audio = require("./audio.js");
 
-d3.json("/settings/themes.json", function(err, themes){
-
+d3.json("/settings/themes.json", function(err, themes) {
   var errorMessage;
 
   // Themes are missing or invalid
-  if (err || !d3.keys(themes).filter(function(d){ return d !== "default"; }).length) {
+  if (
+    err ||
+    !d3.keys(themes).filter(function(d) {
+      return d !== "default";
+    }).length
+  ) {
     if (err instanceof SyntaxError) {
-      errorMessage = "Error in settings/themes.json:<br/><code>" + err.toString() + "</code>";
+      errorMessage =
+        "Error in settings/themes.json:<br/><code>" +
+        err.toString() +
+        "</code>";
     } else if (err instanceof ProgressEvent) {
       errorMessage = "Error: no settings/themes.json.";
     } else if (err) {
@@ -32,17 +39,15 @@ d3.json("/settings/themes.json", function(err, themes){
   }
 
   preloadImages(themes);
-
 });
 
 function submitted() {
-
   d3.event.preventDefault();
 
   var theme = preview.theme(),
-      caption = preview.caption(),
-      selection = preview.selection(),
-      file = preview.file();
+    caption = preview.caption(),
+    selection = preview.selection(),
+    file = preview.file();
 
   if (!file) {
     d3.select("#row-audio").classed("error", true);
@@ -50,7 +55,10 @@ function submitted() {
   }
 
   if (theme.maxDuration && selection.duration > theme.maxDuration) {
-    return setClass("error", "Your Audiogram must be under " + theme.maxDuration + " seconds.");
+    return setClass(
+      "error",
+      "Your Audiogram must be under " + theme.maxDuration + " seconds."
+    );
   }
 
   if (!theme || !theme.width || !theme.height) {
@@ -61,44 +69,55 @@ function submitted() {
   audio.pause();
 
   var formData = new FormData();
+  file = new File([preview.newFile], "newfile.mp3", {
+    type: "audio/mpeg",
+    lastModified: new Date()
+  });
 
   formData.append("audio", file);
   if (selection.start || selection.end) {
     formData.append("start", selection.start);
     formData.append("end", selection.end);
   }
-  formData.append("theme", JSON.stringify($.extend({}, theme, { backgroundImageFile: null })));
+
+  theme.backgroundImage = window.audioImage;
+  formData.append(
+    "theme",
+    JSON.stringify($.extend({}, theme, { backgroundImageFile: null }))
+  );
   formData.append("caption", caption);
 
   setClass("loading");
   d3.select("#loading-message").text("Uploading audio...");
 
-	$.ajax({
-		url: "/submit/",
-		type: "POST",
-		data: formData,
-		contentType: false,
+  $.ajax({
+    url: "/submit/",
+    type: "POST",
+    data: formData,
+    contentType: false,
     dataType: "json",
-		cache: false,
-		processData: false,
-		success: function(data){
+    cache: false,
+    processData: false,
+    success: function(data) {
       poll(data.id, 0);
-		},
+    },
     error: error
-
   });
-
 }
 
 function poll(id) {
-
-  setTimeout(function(){
+  setTimeout(function() {
     $.ajax({
       url: "/status/" + id + "/",
       error: error,
       dataType: "json",
-      success: function(result){
-        if (result && result.status && result.status === "ready" && result.url) {
+      success: function(result) {
+        if (
+          result &&
+          result.status &&
+          result.status === "ready" &&
+          result.url
+        ) {
           video.update(result.url, preview.theme().name);
           setClass("rendered");
         } else if (result.status === "error") {
@@ -109,13 +128,10 @@ function poll(id) {
         }
       }
     });
-
   }, 2500);
-
 }
 
 function error(msg) {
-
   if (msg.responseText) {
     msg = msg.responseText;
   }
@@ -130,12 +146,10 @@ function error(msg) {
 
   d3.select("#loading-message").text("Loading...");
   setClass("error", msg);
-
 }
 
 // Once images are downloaded, set up listeners
 function initialize(err, themesWithImages) {
-
   // Populate dropdown menu
   d3.select("#input-theme")
     .on("change", updateTheme)
@@ -143,56 +157,67 @@ function initialize(err, themesWithImages) {
     .data(themesWithImages)
     .enter()
     .append("option")
-      .text(function(d){
-        return d.name;
-      });
+    .text(function(d) {
+      return d.name;
+    });
 
   // Get initial theme
   d3.select("#input-theme").each(updateTheme);
 
   // Get initial caption (e.g. back button)
-  d3.select("#input-caption").on("change keyup", updateCaption).each(updateCaption);
+  d3.select("#input-caption")
+    .on("change keyup", updateCaption)
+    .each(updateCaption);
+  d3.select(".article").on("click", function(e) {
+    updateCaption(d3.event.toElement.innerText);
+    updateAudioFile(d3.event.toElement.attributes["data-link"].value);
+    window.audioImage = d3.event.toElement.attributes["data-image"].value;
+  });
 
   // Space bar listener for audio play/pause
-  d3.select(document).on("keypress", function(){
-    if (!d3.select("body").classed("rendered") && d3.event.key === " " && !d3.matcher("input, textarea, button, select").call(d3.event.target)) {
+  d3.select(document).on("keypress", function() {
+    if (
+      !d3.select("body").classed("rendered") &&
+      d3.event.key === " " &&
+      !d3.matcher("input, textarea, button, select").call(d3.event.target)
+    ) {
       audio.toggle();
     }
   });
 
   // Button listeners
-  d3.selectAll("#play, #pause").on("click", function(){
+  d3.selectAll("#play, #pause").on("click", function() {
     d3.event.preventDefault();
     audio.toggle();
   });
 
-  d3.select("#restart").on("click", function(){
+  d3.select("#restart").on("click", function() {
     d3.event.preventDefault();
     audio.restart();
   });
 
   // If there's an initial piece of audio (e.g. back button) load it
-  d3.select("#input-audio").on("change", updateAudioFile).each(updateAudioFile);
+  d3.select("#input-audio")
+    .on("change", updateAudioFile)
+    .each(updateAudioFile);
 
-  d3.select("#return").on("click", function(){
+  d3.select("#return").on("click", function() {
     d3.event.preventDefault();
     video.kill();
     setClass(null);
   });
 
   d3.select("#submit").on("click", submitted);
-
 }
 
-function updateAudioFile() {
-
+async function updateAudioFile(audioLink) {
   d3.select("#row-audio").classed("error", false);
 
   audio.pause();
   video.kill();
 
   // Skip if empty
-  if (!this.files || !this.files[0]) {
+  if (!audioLink) {
     d3.select("#minimap").classed("hidden", true);
     preview.file(null);
     setClass(null);
@@ -203,9 +228,28 @@ function updateAudioFile() {
 
   setClass("loading");
 
-  preview.loadAudio(this.files[0], function(err){
+  // var uInt8Array     = new Uint8Array(mappedArray);
+  // var arrayBuffer    = uInt8Array.buffer;
+  // var blob           = new Blob([arrayBuffer]);
+  // var url            = URL.createObjectURL(blob);
+  const audioFile = await fetch(audioLink)
+    .then(response => response.blob())
+    .then(blob => {
+      var reader = new FileReader();
+      reader.readAsArrayBuffer(blob);
+      return new Promise((res, rej) => {
+        reader.onload = function() {
+          res(this.result);
+        };
+      });
+    });
+  preview.newFile = audioFile.slice(0);
 
+  console.log(audioFile);
+
+  preview.loadAudio(audioFile, audioLink, function(err) {
     if (err) {
+      console.log(err);
       d3.select("#row-audio").classed("error", true);
       setClass("error", "Error decoding audio file");
     } else {
@@ -213,13 +257,11 @@ function updateAudioFile() {
     }
 
     d3.selectAll("#minimap, #submit").classed("hidden", !!err);
-
   });
-
 }
 
-function updateCaption() {
-  preview.caption(this.value);
+function updateCaption(val) {
+  preview.caption(val);
 }
 
 function updateTheme() {
@@ -227,12 +269,10 @@ function updateTheme() {
 }
 
 function preloadImages(themes) {
-
   // preload images
   var imageQueue = d3.queue();
 
-  d3.entries(themes).forEach(function(theme){
-
+  d3.entries(themes).forEach(function(theme) {
     if (!theme.value.name) {
       theme.value.name = theme.key;
     }
@@ -240,30 +280,27 @@ function preloadImages(themes) {
     if (theme.key !== "default") {
       imageQueue.defer(getImage, theme.value);
     }
-
   });
 
   imageQueue.awaitAll(initialize);
 
   function getImage(theme, cb) {
-
     if (!theme.backgroundImage) {
       return cb(null, theme);
     }
 
     theme.backgroundImageFile = new Image();
-    theme.backgroundImageFile.onload = function(){
+    theme.backgroundImageFile.onload = function() {
       return cb(null, theme);
     };
-    theme.backgroundImageFile.onerror = function(e){
+    theme.backgroundImageFile.onerror = function(e) {
       console.warn(e);
       return cb(null, theme);
     };
 
-    theme.backgroundImageFile.src = "/settings/backgrounds/" + theme.backgroundImage;
-
+    theme.backgroundImageFile.src =
+      "/settings/backgrounds/" + theme.backgroundImage;
   }
-
 }
 
 function setClass(cl, msg) {
@@ -272,10 +309,13 @@ function setClass(cl, msg) {
 }
 
 function statusMessage(result) {
-
   switch (result.status) {
     case "queued":
-      return "Waiting for other jobs to finish, #" + (result.position + 1) + " in queue";
+      return (
+        "Waiting for other jobs to finish, #" +
+        (result.position + 1) +
+        " in queue"
+      );
     case "audio-download":
       return "Downloading audio for processing";
     case "trim":
@@ -289,7 +329,10 @@ function statusMessage(result) {
     case "frames":
       var msg = "Generating frames";
       if (result.numFrames) {
-        msg += ", " + Math.round(100 * (result.framesComplete || 0) / result.numFrames) + "% complete";
+        msg +=
+          ", " +
+          Math.round((100 * (result.framesComplete || 0)) / result.numFrames) +
+          "% complete";
       }
       return msg;
     case "combine":
@@ -299,5 +342,4 @@ function statusMessage(result) {
     default:
       return JSON.stringify(result);
   }
-
 }

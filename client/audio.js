@@ -94,13 +94,12 @@ function _extent(_) {
 function src(file, cb) {
 
   d3.select("audio")
-    .on("canplaythrough", cb)
-    .on("error", function(){
-      cb(d3.event.target.error);
-    })
-    .select("source")
-      .attr("type", file.type)
-      .attr("src", URL.createObjectURL(file));
+  .on("canplaythrough", cb)
+  .on("error", function(){
+    cb(d3.event.target.error);
+  })
+  .select("source")
+    .attr("src", file);
 
   audio.load();
 

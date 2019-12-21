@@ -13,6 +13,22 @@
   <body class="loading">
     <div class="container">
       <h1>Audiogram</h1>
+
+      <div class="article" data-image="https://aboutcoworking.com/wp-content/uploads/2019/11/347476010-1.jpg" data-link="https://storage.googleapis.com/oz-hameed-test/1574691535179-The__we__in_WeWork_is_very_New_York_let_s_keep_it___Crain_s_New_York_Business.mp3">
+        The 'we' in WeWork is very New York—let's keep it by Crain's New York Business
+      </div>
+       <div class="article" data-image="https://aboutcoworking.com/wp-content/uploads/2019/11/9cc8ff47-7853-46ce-b321-8a544df78735-1.jpg" data-link="https://storage.googleapis.com/oz-hameed-test/1574691540362-Abacus_Buys_North_Sydney_Tower_for__311m_Abacus_Buys_North_Sydney_Tower_for__311m___The_Urban_Developer.mp3">
+        Abacus Buys North Sydney Tower for $311m Abacus Buys North Sydney Tower for $311m by The Urban Developer
+      </div>
+       <div class="article" data-image="https://aboutcoworking.com/wp-content/uploads/2019/11/191122112131-wework-0218-restricted-super-tease.jpg" data-link="https://storage.googleapis.com/oz-hameed-test/1574691537407-Inside_WeWork_s_week_from_hell__How_the_mass_layoffs_went_down___CNN.mp3">
+       Inside WeWork's week from hell: How the mass layoffs went down by CNN
+      </div>
+       <div class="article" data-image="https://aboutcoworking.com/wp-content/uploads/2019/11/https3A2F2Fspecials-images.forbesimg.com2Fimageserve2F5dda50062c886a0007ececd92F960x0.jpg" data-link="https://storage.googleapis.com/oz-hameed-test/1574691540887-Work_Life_Finds_The_Key_To_Coworking_Success_While_The_Major_Players_Struggle___Forbes.mp3">
+        Work.Life Finds The Key To Coworking Success While The Major Players Struggle by Forbes
+      </div>
+       <div class="article" data-image="https://aboutcoworking.com/wp-content/uploads/2019/11/5dd624632c925.image_.jpg" data-link="https://storage.googleapis.com/oz-hameed-test/1574691779493-Factory_moving_to_Innovation_Center_at_Colorado_Mesa_University___The_Grand_Junction_Daily_Sentinel.mp3">
+        Factory moving to Innovation Center at Colorado Mesa University by The Grand Junction Daily Sentinel
+      </div>
       <div id="loading">
         <div id="loading-bars">
           <div class="r1"></div><div class="r2"></div><div class="r3"></div><div class="r4"></div><div class="r5"></div>
@@ -29,7 +45,7 @@
           <label for="input-theme">Theme</label>
           <select id="input-theme" name="theme"></select>
         </div>
-        <div class="row form-row" id="row-caption">
+        <div class="row form-row" id="row-caption" style="display:none">
           <label for="input-caption">
             Caption
             <div class="note">Add two spaces in a row to force a line break.</div>
@@ -90,7 +106,25 @@
         </div>
       </div><!-- #loaded -->
     </div><!-- .container -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+    <script>
+
+    var title
+      $(".article").click(function(e){
+        $("#input-caption").val($(this).text())
+
+      
+      })
+
+    </script>
+
+    <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/fetch/3.0.0/fetch.min.js">
+    
+    </script>
+    
     <script src="/js/bundle.js"></script>
+
     <!-- Force load custom fonts -->
     <script src="/fonts/fonts.js"></script>
   </body>

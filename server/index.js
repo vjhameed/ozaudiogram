@@ -1,17 +1,17 @@
 // Dependencies
 var express = require("express"),
-    compression = require("compression"),
-    path = require("path"),
-    multer = require("multer"),
-    uuid = require("uuid"),
-    mkdirp = require("mkdirp");
+  compression = require("compression"),
+  path = require("path"),
+  multer = require("multer"),
+  uuid = require("uuid"),
+  mkdirp = require("mkdirp");
 
 // Routes and middleware
 var logger = require("../lib/logger/"),
-    render = require("./render.js"),
-    status = require("./status.js"),
-    fonts = require("./fonts.js"),
-    errorHandlers = require("./error.js");
+  render = require("./render.js"),
+  status = require("./status.js"),
+  fonts = require("./fonts.js"),
+  errorHandlers = require("./error.js");
 
 // Settings
 var serverSettings = require("../lib/settings/");
@@ -25,7 +25,6 @@ app.use(logger.morgan());
 var fileOptions = {
   storage: multer.diskStorage({
     destination: function(req, file, cb) {
-
       var dir = path.join(serverSettings.workingDirectory, uuid.v1());
 
       mkdirp(dir, function(err) {
@@ -45,11 +44,18 @@ if (serverSettings.maxUploadSize) {
 }
 
 // On submission, check upload, validate input, and start generating a video
-app.post("/submit/", [multer(fileOptions).single("audio"), render.validate, render.route]);
+app.post("/submit/", [
+  multer(fileOptions).single("audio"),
+  render.validate,
+  render.route
+]);
 
 // If not using S3, serve videos locally
 if (!serverSettings.s3Bucket) {
-  app.use("/video/", express.static(path.join(serverSettings.storagePath, "video")));
+  app.use(
+    "/video/",
+    express.static(path.join(serverSettings.storagePath, "video"))
+  );
 }
 
 // Serve custom fonts
@@ -63,18 +69,24 @@ if (serverSettings.fonts) {
 // Check the status of a current video
 app.get("/status/:id/", status);
 
-
 // Serve background images and themes JSON statically
-app.use("/settings/", function(req, res, next) {
+app.use(
+  "/settings/",
+  function(req, res, next) {
+    // Limit to themes.json and bg images
+    if (
+      req.url.match(/^\/?themes.json$/i) ||
+      req.url.match(/^\/?backgrounds\/[^/]+$/i)
+    ) {
+      return next();
+    }
 
-  // Limit to themes.json and bg images
-  if (req.url.match(/^\/?themes.json$/i) || req.url.match(/^\/?backgrounds\/[^/]+$/i)) {
-    return next();
-  }
-
-  return res.status(404).send("Cannot GET " + path.join("/settings", req.url));
-
-}, express.static(path.join(__dirname, "..", "settings")));
+    return res
+      .status(404)
+      .send("Cannot GET " + path.join("/settings", req.url));
+  },
+  express.static(path.join(__dirname, "..", "settings"))
+);
 
 // Serve editor files statically
 app.use(express.static(path.join(__dirname, "..", "editor")));

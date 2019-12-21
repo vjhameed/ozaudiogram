@@ -1,13 +1,12 @@
 var d3 = require("d3"),
-    patterns = require("./patterns.js"),
-    textWrapper = require("./text-wrapper.js");
+  patterns = require("./patterns.js"),
+  textWrapper = require("./text-wrapper.js");
 
 module.exports = function(t) {
-
   var renderer = {},
-      backgroundImage,
-      wrapText,
-      theme;
+    backgroundImage,
+    wrapText,
+    theme;
 
   renderer.backgroundImage = function(_) {
     if (!arguments.length) return backgroundImage;
@@ -22,11 +21,9 @@ module.exports = function(t) {
 
     // Default colors
     theme.backgroundColor = theme.backgroundColor || "#fff";
-    theme.waveColor = theme.waveColor || theme.foregroundColor || "#000";
-    theme.captionColor = theme.captionColor || theme.foregroundColor || "#000";
-
-    // Default wave dimensions
-    if (typeof theme.waveTop !== "number") theme.waveTop = 0;
+    theme.waveColor = "rgba(178, 190, 195, 0.7)";
+    theme.captionColor = "#fff";
+    theme.waveTop = 600;
     if (typeof theme.waveBottom !== "number") theme.waveBottom = theme.height;
     if (typeof theme.waveLeft !== "number") theme.waveLeft = 0;
     if (typeof theme.waveRight !== "number") theme.waveRight = theme.width;
@@ -37,8 +34,7 @@ module.exports = function(t) {
   };
 
   // Draw the frame
-  renderer.drawFrame = function(context, options){
-
+  renderer.drawFrame = function(context, options) {
     context.patternQuality = "best";
 
     // Draw the background image and/or background color
@@ -59,7 +55,6 @@ module.exports = function(t) {
     }
 
     return this;
-
   };
 
   if (t) {
@@ -67,5 +62,4 @@ module.exports = function(t) {
   }
 
   return renderer;
-
-}
+};

@@ -1,12 +1,11 @@
 var smartquotes = require("smartquotes").string;
 
-module.exports = function (theme) {
-
+module.exports = function(theme) {
   // Do some typechecking
   var left = ifNumeric(theme.captionLeft, 0),
     right = ifNumeric(theme.captionRight, theme.width),
     bottom = ifNumeric(theme.captionBottom, null),
-    top = ifNumeric(theme.captionTop, null);
+    top = 50;
 
   if (bottom === null && top === null) {
     top = 0;
@@ -14,17 +13,17 @@ module.exports = function (theme) {
 
   var captionWidth = right - left;
 
-  return function (context, caption) {
-
+  return function(context, caption) {
     if (!caption) {
       return;
     }
 
-    var lines = [
-        []
-      ],
+    var lines = [[]],
       maxWidth = 0,
-      words = smartquotes(caption + "").trim().replace(/\s\s+/g, " \n").split(/ /g);
+      words = smartquotes(caption + "")
+        .trim()
+        .replace(/\s\s+/g, " \n")
+        .split(/ /g);
 
     context.font = theme.captionFont;
     context.textBaseline = "top";
@@ -32,30 +31,36 @@ module.exports = function (theme) {
 
     // Check whether each word exceeds the width limit
     // Wrap onto next line as needed
-    words.forEach(function (word, i) {
+    words.forEach(function(word, i) {
+      var width = context.measureText(
+        lines[lines.length - 1].concat([word]).join(" ")
+      ).width;
 
-      var width = context.measureText(lines[lines.length - 1].concat([word]).join(" ")).width;
-
-      if (word[0] === "\n" || (lines[lines.length - 1].length && width > captionWidth)) {
-
+      if (
+        word[0] === "\n" ||
+        (lines[lines.length - 1].length && width > captionWidth)
+      ) {
         word = word.trim();
         lines.push([word]);
         width = context.measureText(word).width;
-
       } else {
-
         lines[lines.length - 1].push(word);
-
       }
 
       maxWidth = Math.max(maxWidth, width);
-
     });
 
-    var totalHeight = lines.length * theme.captionLineHeight + (lines.length - 1) * theme.captionLineSpacing;
+    var totalHeight =
+      lines.length * theme.captionLineHeight +
+      (lines.length - 1) * theme.captionLineSpacing;
 
     // horizontal alignment
-    var x = theme.captionAlign === "left" ? left : theme.captionAlign === "right" ? right : (left + right) / 2;
+    var x =
+      theme.captionAlign === "left"
+        ? left
+        : theme.captionAlign === "right"
+        ? right
+        : (left + right) / 2;
 
     // Vertical alignment
     var y;
@@ -72,15 +77,16 @@ module.exports = function (theme) {
     }
 
     context.fillStyle = theme.captionColor;
-    lines.forEach(function (line, i) {
-      context.fillText(line.join(" "), x, y + i * (theme.captionLineHeight + theme.captionLineSpacing));
+    lines.forEach(function(line, i) {
+      context.fillText(
+        line.join(" "),
+        x,
+        y + i * (theme.captionLineHeight + theme.captionLineSpacing)
+      );
     });
-
   };
-
-
-}
+};
 
 function ifNumeric(val, alt) {
-  return (typeof val === "number" && !isNaN(val)) ? val : alt;
+  return typeof val === "number" && !isNaN(val) ? val : alt;
 }
