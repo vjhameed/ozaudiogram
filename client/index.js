@@ -168,7 +168,7 @@ function initialize(err, themesWithImages) {
   d3.select("#input-caption")
     .on("change keyup", updateCaption)
     .each(updateCaption);
-  d3.select(".article").on("click", function(e) {
+  d3.selectAll(".article").on("click", function(e) {
     updateCaption(d3.event.toElement.innerText);
     updateAudioFile(d3.event.toElement.attributes["data-link"].value);
     window.audioImage = d3.event.toElement.attributes["data-image"].value;
