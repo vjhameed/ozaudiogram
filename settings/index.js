@@ -47,7 +47,7 @@ module.exports = {
       weight: "bold",
       style: "italic"
     }
-  ]
+  ],
   worker: true,
   redisHost: "127.0.0.1"
 };
