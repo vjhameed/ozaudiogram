@@ -48,6 +48,6 @@ module.exports = {
       style: "italic"
     }
   ]
-  // worker: true,
-  // redisHost: "127.0.0.1"
+  worker: true,
+  redisHost: "127.0.0.1"
 };
